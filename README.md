@@ -16,6 +16,8 @@ Original output from the atlas_decoder.
 
 * treasure_hunter.py  
 
+I welcome any changes/fixes/improvements from anyone else!
+
 This is an experimental treasure hunter script.
  - Features
       -  Auto-find the closest 2 rune points, reports the point and distance.
