@@ -31,6 +31,7 @@ This is an experimental treasure hunter script.
       - Some way to highlight rune in the book (idk if this is possible)
       - Some way to differentiate between islands and land mass. (idk if this is possible)
  - Known Issues
+      - There is a very west island in Tokuno that doesnt have a rune and it makes me sad.
       - Script sometimes does not reset the benches.
       - The auto-dig,pick,disarm seems like it could be better and stop spamming.
       - Sometimes, when looting if you walk away the script error's out.
