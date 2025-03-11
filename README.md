@@ -1,5 +1,5 @@
 # Python-Scripts
-A collection of Python Scripts made for the extremely popular Ultima Online.
+A collection of Python Scripts for the extremely popular Ultima Online.
 
 
 * atlas_decoder.py  
