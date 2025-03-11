@@ -21,7 +21,8 @@ This is a very experimental treasure hunter script.
       -  Auto-find the closest 2 rune points, reports the point and distance.
       -  Highlights the benches that contain the book you need to open.
       -  Tells you with player.headmessage what rune you need to travel to.
-      -  Tracking arrow will show when you travel to the facet.
+      -  Tracking arrow towards treasure will show when you travel to the facet.
+      -  CUO map will set a waypoint to the treasure.
       -  Auto-Dig, pick, disarm the chest when you are in range
       -  Uses Lootmaster to loot the chest.
  -  Planned Features
