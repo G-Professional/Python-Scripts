@@ -2,7 +2,7 @@
 A collection of Python Scripts for the extremely popular Ultima Online.
 
 # Treasure Hunter
- -This is an experimental treasure hunter script. 
+ -Early version of a treasure map script made for InsaneUO.
 ## Install instructions:
  1. Download both treasure_hunter.py and treasure_hunter_dict.py  
  2. Load both files into Razor Enhanced  
