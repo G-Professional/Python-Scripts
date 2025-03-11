@@ -1,2 +1,2 @@
 # Python-Scripts
-Python Scripts for Ultima Online
+A collection of Python Scripts I have made for use in the extremely popular Ultima Online.
