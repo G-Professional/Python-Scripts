@@ -14,23 +14,26 @@ bookname = 0
 booktxt = 0
 closest = [0]*3
 n = 0
-####### IMPORT DICTIONARY #####
-###############################
+##################################################
+######         Importing Dictionary         ######
 
-#there is some problem with importing, trammel justice shrine not in here
+#import is unable to handle duplicate keys, so we use X,Y,FACET as keys. I'm a little confused 
+#with how dictionaries work, but these are the values we search for, so I think they are the 
+#only keys we need.
+#Eventually I would like to have the dictionary as a one-line at the top of the file.
 def csv_to_dict(filename):
     data = {}
     with open(filename, 'r', newline='') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            key = f"{row['X']},{row['Y']},{row['FACET']}"  # Use coordinates as a unique key
+            key = f"{row['X']},{row['Y']},{row['FACET']}"  #defining the search keys.
             data[key] = row
             
     return data
 
 filename = 'atlaswaypoints.csv'
 coordsDICT = csv_to_dict(filename)
-################################
+##################################################
 
 def findLocation():
     maps = Items.FindAllByID(0x14EC,0x0000,Player.Backpack.Serial,0)
@@ -219,10 +222,12 @@ while True:
             if coords != ',':
                 loclist = coords.split(",")
                 newdiff = abs(int(loclist[0])-location[0]) + abs(int(loclist[1])-location[1])
+            #Result will be from Shrine book
             if newdiff < diff2 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
                 diff2 = newdiff
                 closest[2] = coords
                 print(closest[2])
+            #Result will be from all books. Gets stuck on Islands a lot because they are the closest point.
             if newdiff < diff and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
                 diff2 = diff
                 diff = newdiff
@@ -261,7 +266,7 @@ while True:
     
 
     if location != 0 and map != 0 and facet == currentFacet(Player.Map)[0]:
-        try:
+        try: #Using try here to help mitigate errors for now.
             if facet == "Tokuno Islands": #Trackingarrow is different in tokuno
                 Player.TrackingArrow(location[0]-3,location[1]-3,1,0)
             elif facet == "Ilshenar":
@@ -294,8 +299,6 @@ while True:
         if tchest:
             if tchest.Position.Z == Player.Position.Z:
                 status = 1
-    #0 = locked 1 = unlocked 2 = untrapped 3 = opened
-    
         
     while tchest and status == 1:
         Journal.Clear()
@@ -330,6 +333,7 @@ while True:
         Target.TargetExecute(tchest)
         for item in range(len(tchest.Contains)):
                 Misc.Pause(1000)
+        #Reset values to recalculate rune
         status = 0
         coordstatus = 0
     
