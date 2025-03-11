@@ -34,7 +34,7 @@ This is a very experimental treasure hunter script.
       - Script sometimes does not reset the benches.
       - The auto-dig,pick,disarm seems like it could be better and stop spamming.
       - Sometimes, when looting if you walk away the script error's out.
-      - The GUI is depressing.
+      - ~~The GUI is depressing.~~ Not anymore its not!
       - The current code requires Lootmaster, an external dictionary file, and CUO for the trackingarrow. These should all be optional.
       - The tracking arrow is off in facets other than fel and tram. Don't know why.
         
