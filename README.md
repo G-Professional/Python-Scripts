@@ -35,5 +35,5 @@ This is a very experimental treasure hunter script.
       - Sometimes, when looting if you walk away the script error's out.
       - The GUI is depressing.
       - The current code requires Lootmaster, an external dictionary file, and CUO for the trackingarrow. These should all be optional.
-      
+      - The tracking arrow is off in facets other than fel and tram. Don't know why.
         
