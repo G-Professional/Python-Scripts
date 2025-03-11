@@ -3,7 +3,7 @@ A collection of Python Scripts for the extremely popular Ultima Online.
 
 
 * atlas_decoder.py  
-this scan a runic atlas and output a csv file. It sometimes messes up, probably needs some error correction.
+Scans a runic atlas and output a csv file. It sometimes messes up, probably needs some error correction.
 
 
 * atlaswaypoints.csv  
@@ -16,7 +16,7 @@ Original output from the atlas_decoder.
 
 * treasure_hunter.py  
 
-This is a very experimental treasure hunter script.
+This is an experimental treasure hunter script.
  - Features
       -  Auto-find the closest 2 rune points, reports the point and distance.
       -  Highlights the benches that contain the book you need to open.
