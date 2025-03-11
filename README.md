@@ -35,6 +35,6 @@ This is a very experimental treasure hunter script.
       - The auto-dig,pick,disarm seems like it could be better and stop spamming.
       - Sometimes, when looting if you walk away the script error's out.
       - ~~The GUI is depressing.~~ Not anymore its not!
-      - The current code requires Lootmaster, an external dictionary file, and CUO for the trackingarrow. These should all be optional.
+      - Dictionary is included in the python script... Probably bad.
       - The tracking arrow is off in facets other than fel and tram. Don't know why.
         
