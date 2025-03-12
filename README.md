@@ -7,7 +7,7 @@ A collection of Python Scripts for the extremely popular Ultima Online.
  1. Download both treasure_hunter.py and treasure_hunter_dict.py  
  2. Load both files into Razor Enhanced  
  3. You only need to run "treasure_hunter.py".  
-The other file is a dictionary file with all the points (split up because the dictionary has over 3000 entries)  
+The other file is a dictionary file with all the points (split up because the dictionary has over 4000 entries)  
 
   
   ## Features
