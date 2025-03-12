@@ -1,6 +1,6 @@
 import time
 import math
-from tresure_hunter_dict import coordsDICT
+from treasure_hunter_dict import coordsDICT
     
 coordstatus = 0
 status = 0
