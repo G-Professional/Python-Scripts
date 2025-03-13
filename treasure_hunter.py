@@ -13,31 +13,9 @@ coordsCLOSE4 = 0
 book = 0
 bookname = 0
 booktxt = 0
-closest = [0]*4
+closest = [0]*5
 benchlist = []
 n = 0
-N = 0
-##################################################
-######         Importing Dictionary         ######
-
-#import is unable to handle duplicate keys, so we use X,Y,FACET as keys. Im a little confused 
-#with how dictionaries work, but these are the values we search for, so I think they are the 
-#only keys we need.
-#Eventually I would like to have the dictionary as a one-line at the top of the file.
-#def csv_to_dict(filename):
-#    data = {}
-#    with open(filename, 'r', newline='') as file:
-#        csv_reader = csv.DictReader(file)
-#        for row in csv_reader:
-#            key = f"{row['X']},{row['Y']},{row['FACET']}"  #defining the search keys.
-#            data[key] = row
-#            
-#    return data
-#
-#filename = 'atlaswaypoints.csv'
-#coordsDICT = csv_to_dict(filename)
-#print(coordsDICT)
-##################################################
 
 def findLocation():
     maps = Items.FindAllByID(0x14EC,0x0000,Player.Backpack.Serial,0)
@@ -143,45 +121,37 @@ def findBench(x,y):
                 benchList2.append(bench)
         return benchList2
     return None
- 
-def filterstate(N):
+
+
+    
+def filterstate(toggle):
     global closest
     global bookname
     global booktext
     global coordsCLOSE1
     global coordsCLOSE2
     global coordsCLOSE3
-    #couldn't figure out how to do with without globals, bad practice
+    global coordsCLOSE4
+    global N
+    filterName = ["All Runes","No Islands","Shrines","Towns"]
+    #couldnt figure out how to do with without globals, bad practice
     if benchlist:
         for bench in benchlist:
             Items.SetColor(bench.Serial,0x0000)
-    if N == 1:
-        for i in range(1,len(closest)):
-            if closest[i] == closest[0]:
-                if i == len(closest)-1:
-                    print("roll over")
-                    closest[0] = closest[1]
-                    bookname = coordsCLOSE1['BOOK']
-                    booktxt = coordsCLOSE1['TEXT']
-                    return
-                closest[0] = closest[i+1]
-                bookname = globals()["coordsCLOSE"+str(i+1)]['BOOK']
-                booktxt = globals()["coordsCLOSE"+str(i+1)]['TEXT']
-                return
-                
-    if N == -1:
-        for i in range(1,len(closest)):
-            if closest[i] == closest[0]:
-                if i == 1:
-                    print("roll under")
-                    closest[0] = closest[len(closest)-1]
-                    bookname = globals()["coordsCLOSE"+str(len(closest)-1)]['BOOK']
-                    booktxt = globals()["coordsCLOSE"+str(len(closest)-1)]['TEXT']
-                    return
-                closest[0] = closest[i-1]
-                bookname = globals()["coordsCLOSE"+str(i-1)]['BOOK']
-                booktxt = globals()["coordsCLOSE"+str(i-1)]['TEXT']
-                return
+    
+    if toggle == 1:
+        N += 1
+    if toggle == -1:
+        N -= 1
+    if N == len(closest):
+        N = 1
+    if N == 0:
+        N = 4
+    print("Filter = "+filterName[N-1])
+    closest[0] = closest[N]
+    bookname = globals()["coordsCLOSE"+str(N)]['BOOK']
+    booktxt = globals()["coordsCLOSE"+str(N)]['TEXT']
+        
 
     
 ##################################################
@@ -225,12 +195,12 @@ def buttoncheck():
         else:
             Player.HeadMessage(37,"No more maps!")
     if gd.buttonid == 2:
-        print("Next Rune")
-        N += 1
+        print("Next Filter")
+        N = 1
         filterstate(N)
     if gd.buttonid == 3:
-        print("Previous Rune")
-        N -= 1
+        print("Previous Filter")
+        N = -1
         filterstate(N)
 ##################################################
 
@@ -252,6 +222,7 @@ while True:
         diff = 99999
         diff2 = 99999
         diff3 = 99999
+        diff4 = 99999
         for coords in coordsDICT.keys():
             if coords != ',':
                 loclist = coords.split(",")
@@ -259,29 +230,29 @@ while True:
             #Result will be from Towns
             townlist = ['Britain', 'Buccaneer', 'Cove', 'Delucia', 'Heartwood', 'Jhelom', 'Minoc', 'Moonglow', 'New Haven', 'New Magincia', 'Nujel', 'Ocllo', 'Papua', 'Royal City', 'Serpent', 'Skara Brae', 'Trinsic', 'Umbra', 'Vesper', 'Wind', 'Yew',
             'Zento']
-            for town in townlist:
-                if newdiff < diff3 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and town in coordsDICT.get(coords)["BOOK"]:
-                    diff3 = newdiff
-                    closest[3] = coords
-                    print(closest[3])
+            townmatch = any(town in coordsDICT.get(coords)["BOOK"] for town in townlist)
+            if newdiff < diff4 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and townmatch:
+                diff4 = newdiff
+                closest[4] = coords
             #Result will be from NOT island book
-            if newdiff < diff3 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
+            if newdiff < diff3 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
                 diff3 = newdiff
-                closest[2] = coords
+                closest[3] = coords
             #Result will be from Shrine book
-            if newdiff < diff2 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
+            if newdiff < diff2 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
                 diff2 = newdiff
                 closest[2] = coords
             #Result will be from all books. Gets stuck on Islands a lot because they are the closest point.
             if newdiff < diff and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
-                diff2 = diff
                 diff = newdiff
                 closest[1] = coords
         coordstatus = 1
         closest[0] = closest[1]
+        N = 1
         coordsCLOSE1 = coordsDICT.get(closest[1])
         coordsCLOSE2 = coordsDICT.get(closest[2])
         coordsCLOSE3 = coordsDICT.get(closest[3])
+        coordsCLOSE4 = coordsDICT.get(closest[4])
         bookname = coordsCLOSE1['BOOK']
         booktxt = coordsCLOSE1['TEXT']
         
@@ -371,13 +342,13 @@ while True:
             Target.WaitForTarget(1000, False)
             Target.TargetExecute(bag)
             for item in range(len(bag.Contains)):
-                Misc.Pause(1000)
+                Misc.Pause(1200)
             Misc.Pause(2000)
         Gumps.SendAction(0xd06eaf, 12)
         Target.WaitForTarget(1000, False)
         Target.TargetExecute(tchest)
         for item in range(len(tchest.Contains)):
-                Misc.Pause(1000)
+                Misc.Pause(1200)
         #Reset values to recalculate rune
         status = 0
         coordstatus = 0
