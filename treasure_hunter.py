@@ -147,7 +147,7 @@ def filterstate(toggle):
         N = 1
     if N == 0:
         N = 4
-    print("Filter = "+filterName[N-1])
+    Player.HeadMessage(980,filterName[N-1])
     closest[0] = closest[N]
     bookname = globals()["coordsCLOSE"+str(N)]['BOOK']
     booktxt = globals()["coordsCLOSE"+str(N)]['TEXT']
@@ -164,30 +164,33 @@ setY = 50
 def sendgump(facet,location,emptymap,closest,diff):
     
     status = [""]*2
-    color = [0x555]*5+[0x0000]+[0x555]
-    scripts = ["Treasure Hunter","---------------"]
-    others = [str(facet),str(location),"Rune: "+str(closest[0])[:-4],"Distance: "+str(diff),"","  Open a Map"]
-    sizeY = 50 + (len(scripts)+len(others))*15
+    color = [0]*5+[0x0000]+[0x555]
+    scripts = ["Treasure Hunter",""]
+    others = [str(facet),str(location),"Rune: "+str(closest[0])[:-4],"Distance: "+str(diff)]
     gd = Gumps.CreateGump(movable=True) 
     Gumps.AddPage(gd, 0)
-    Gumps.AddBackground(gd, 0, 0, 150, sizeY, 1579)
+    Gumps.AddBackground(gd, 0, 0, 150, 170, 1579)
+    Gumps.AddBackground(gd, 5, 30, 140, 10, 50)
     #Gumps.AddAlphaRegion(gd,0, 0, 150, sizeY)
     for i in range(len(scripts)):
-        Gumps.AddLabel(gd,25,5+i*20,0x555,scripts[i])
+        Gumps.AddLabel(gd,25,5+i*20,31,scripts[i])
     for i in range(len(others)):
         Gumps.AddLabel(gd,25,5+(i+len(scripts))*20,color[i],others[i])
-    Gumps.AddButton(gd, 10, 130, 5831, 5832, 1, 1, 0)
+    Gumps.AddButton(gd, -5, 130, 1964, 1973, 1, 1, 0)
+    Gumps.AddTooltip(gd, r"Open a map")
     Gumps.AddButton(gd, 135, 35, 1611, 1611, 2, 1, 0) #Next button
+    Gumps.AddTooltip(gd, r"Next Filter")
     Gumps.AddButton(gd, -12, 35, 1610, 1610, 3, 1, 0) #Previous button
+    Gumps.AddTooltip(gd, r"Previous Filter")
     #Send Gump#
     Gumps.SendGump(987667, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
     buttoncheck() 
    
 def buttoncheck():
     N = 0
-    Gumps.WaitForGump(987667, 250) ###### TRY TO KEEP THIS AS THE ONLY PAUSE
+    Gumps.WaitForGump(987667, 1000) ###### TRY TO KEEP THIS AS THE ONLY PAUSE
                                    ###### SO THAT GUMP IS MORE RESPONSIVE
-#    Gumps.CloseGump(987654)
+#    Gumps.CloseGump(987667)
     gd = Gumps.GetGumpData(987667)
     if gd.buttonid == 1: 
         if emptymap:
@@ -195,11 +198,9 @@ def buttoncheck():
         else:
             Player.HeadMessage(37,"No more maps!")
     if gd.buttonid == 2:
-        print("Next Filter")
         N = 1
         filterstate(N)
     if gd.buttonid == 3:
-        print("Previous Filter")
         N = -1
         filterstate(N)
 ##################################################
@@ -213,7 +214,7 @@ while True:
     sendgump(facet,location,emptymap,closest,diff)
     n += 1 #this is a timer to help time certain events
     if n > 100:
-        n = 0
+        n = 1
     if location == 0 and emptymap and n%50 == 0 and coordstatus == 0:
         Player.HeadMessage(0x55,"Open a map!")
     
@@ -263,12 +264,12 @@ while True:
         benchlist = findBench(book.Position.X,book.Position.Y)
         if findBook(bookname) and not Gumps.HasGump(0x1f2):
             if n % 2 ==0:
-                a = 62
+                a = 2965
             else:
-                a = 32
+                a = 2736
             for bench in benchlist:
                 Items.SetColor(bench.Serial,a)
-            if n % 20 == 0:
+            if n % 10 == 0:
                 Player.HeadMessage(currentFacet(facet)[1],bookname+": "+booktxt)
             if abs(book.Position.X - Player.Position.X) < 3 and abs(book.Position.Y - Player.Position.Y) < 3:
                 Items.UseItem(book)
