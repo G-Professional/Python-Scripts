@@ -99,7 +99,7 @@ def findShovel():
         return shovel[0]
         
 def findChestStatus(tchest):
-    jlist = Journal.GetJournalEntry(time.time() -5) 
+    jlist = Journal.GetJournalEntry(time.time()-5) 
     if tchest.ContainerOpened:
         return 3
     for line in jlist:
@@ -273,14 +273,13 @@ while True:
                 Player.HeadMessage(currentFacet(facet)[1],bookname+": "+booktxt)
             if abs(book.Position.X - Player.Position.X) < 3 and abs(book.Position.Y - Player.Position.Y) < 3:
                 Items.UseItem(book)
+            continue
         while Gumps.HasGump(0x1f2): #while book open
             for bench in benchlist:
                 Items.SetColor(bench.Serial,0x0000)
             Player.HeadMessage(currentFacet(facet)[1],booktxt)
-            if not Gumps.HasGump(0x1f2):
-                Misc.Pause(3000)
-                break
             Misc.Pause(2500)
+        Misc.Pause(5000)
     
     if location != 0 and map != 0 and facet == currentFacet(Player.Map)[0]:
         try: #Using try here to help mitigate errors for now.
