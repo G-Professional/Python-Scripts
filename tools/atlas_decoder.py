@@ -103,3 +103,25 @@ Items.SetColor(atlas,0x1000)
 #all runic atlas' have 3 pages
 
 #my format ["runebookname", x, y, facet, "coordsname"]
+
+##################################################
+######         Importing Dictionary         ######
+
+#import is unable to handle duplicate keys, so we use X,Y,FACET as keys. Im a little confused 
+#with how dictionaries work, but these are the values we search for, so I think they are the 
+#only keys we need.
+#Eventually I would like to have the dictionary as a one-line at the top of the file.
+#def csv_to_dict(filename):
+#    data = {}
+#    with open(filename, 'r', newline='') as file:
+#        csv_reader = csv.DictReader(file)
+#        for row in csv_reader:
+#            key = f"{row['X']},{row['Y']},{row['FACET']}"  #defining the search keys.
+#            data[key] = row
+#            
+#    return data
+#
+#filename = 'atlaswaypoints.csv'
+#coordsDICT = csv_to_dict(filename)
+#print(coordsDICT)
+##################################################
