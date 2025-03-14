@@ -1,7 +1,8 @@
-import time
-import math
 from treasure_hunter_dict import coordsDICT
-    
+from System.Collections.Generic import List
+from System import Byte
+import math, time
+   
 coordstatus = 0
 status = 0
 lastserial = 0
@@ -152,7 +153,20 @@ def filterstate(toggle):
     bookname = globals()["coordsCLOSE"+str(N)]['BOOK']
     booktxt = globals()["coordsCLOSE"+str(N)]['TEXT']
         
-
+def enemyrange(range):
+    enemiesInRange = Mobiles.Filter()
+    enemiesInRange.Enabled = True
+    enemiesInRange.RangeMin = -1
+    enemiesInRange.RangeMax = range
+    enemiesInRange.Notorieties = List[Byte](bytes([3,4,5,6]))
+    enemiesInRange.Friend = False
+    enemiesInRange.IsGhost = False
+    enemiesInRange.CheckIgnoreObject = True
+    enemiesInRange.CheckLineOfSight = True
+    enemiesList = Mobiles.ApplyFilter(enemiesInRange)
+    if enemiesList:
+        return True
+    return False
     
 ##################################################
 ######            In-Game Gump              ######
@@ -304,24 +318,25 @@ while True:
         status = findChestStatus(tchest)
         
         
-    if map and abs(Player.Position.X - location[0]) <3 and abs(Player.Position.Y - location[1]) <3 and status == 0:
+    if map and abs(Player.Position.X - location[0]) <3 and abs(Player.Position.Y - location[1]) <3 and status == 0 and not enemyrange(5):
         Journal.Clear()
         Items.UseItem(shovel)
-        Target.WaitForTarget(5000, False)
+        Target.WaitForTarget(1000, False)
         Target.TargetExecute(map.Serial)
-        Target.WaitForTarget(5000, False)
+        Target.WaitForTarget(1000, False)
         Target.TargetExecute(map.Serial)
-        Misc.Pause(2000)
+        while not Journal.WaitJournal("You cannot", 1000) and not enemyrange(5):
+            Misc.Pause(1000)
         if tchest:
             if tchest.Position.Z == Player.Position.Z:
                 status = 1
         
-    while tchest and status == 1:
+    while tchest and status == 1 and not enemyrange(5):
         Journal.Clear()
         Items.UseItem(lockpick)
         Target.WaitForTarget(1000, False)
         Target.TargetExecute(tchest)
-        if Journal.WaitJournal("The lock quickly yields to your skill.", 5000):
+        if Journal.WaitJournal("The lock quickly yields to your skill.", 1000):
             status = 2
         Misc.Pause(1000)
         
