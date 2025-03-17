@@ -1,7 +1,7 @@
 from treasure_hunter_dict import coordsDICT
 from System.Collections.Generic import List
 from System import Byte
-import math, time
+import math
    
 coordstatus = 0
 status = 0
@@ -15,6 +15,7 @@ book = 0
 bookname = 0
 booktxt = 0
 closest = [0]*5
+diff = [0]*5
 benchlist = []
 n = 0
 
@@ -100,12 +101,10 @@ def findShovel():
         return shovel[0]
         
 def findChestStatus(tchest):
-    jlist = Journal.GetJournalEntry(time.time()-5) 
     if tchest.ContainerOpened:
         return 3
-    for line in jlist:
-        if "That appears to be trapped" in line.Text:
-            return 2
+    if Journal.WaitJournal("That appears to be trapped", 2000):
+        return 2
     return 1
 
 def findBench(x,y):
@@ -128,11 +127,12 @@ def findBench(x,y):
 def filterstate(toggle):
     global closest
     global bookname
-    global booktext
+    global booktxt
     global coordsCLOSE1
     global coordsCLOSE2
     global coordsCLOSE3
     global coordsCLOSE4
+    global diff
     global N
     filterName = ["All Runes","No Islands","Shrines","Towns"]
     #couldnt figure out how to do with without globals, bad practice
@@ -150,6 +150,7 @@ def filterstate(toggle):
         N = 4
     Player.HeadMessage(980,filterName[N-1])
     closest[0] = closest[N]
+    diff[0] = diff[N]
     bookname = globals()["coordsCLOSE"+str(N)]['BOOK']
     booktxt = globals()["coordsCLOSE"+str(N)]['TEXT']
         
@@ -180,7 +181,7 @@ def sendgump(facet,location,emptymap,closest,diff):
     status = [""]*2
     color = [0]*5+[0x0000]+[0x555]
     scripts = ["Treasure Hunter",""]
-    others = [str(facet),str(location),"Rune: "+str(closest[0])[:-4],"Distance: "+str(diff)]
+    others = [str(facet),str(location),"Rune: "+str(closest[0])[:-4],"Distance: "+str(diff[0])]
     gd = Gumps.CreateGump(movable=True) 
     Gumps.AddPage(gd, 0)
     Gumps.AddBackground(gd, 0, 0, 150, 170, 1579)
@@ -219,7 +220,7 @@ def buttoncheck():
         filterstate(N)
 ##################################################
 
-while True:
+while Player.Connected:
     tchest = findTChest()
     lockpick = findLockPick()
     shovel = findShovel()
@@ -234,10 +235,10 @@ while True:
     
     
     if coordstatus == 0 and map: #Run this only once per map (the list is BIG)
-        diff = 99999
-        diff2 = 99999
-        diff3 = 99999
-        diff4 = 99999
+        diff[1] = 99999
+        diff[2] = 99999
+        diff[3] = 99999
+        diff[4] = 99999
         for coords in coordsDICT.keys():
             if coords != ',':
                 loclist = coords.split(",")
@@ -246,20 +247,20 @@ while True:
             townlist = ['Britain', 'Buccaneer', 'Cove', 'Delucia', 'Heartwood', 'Jhelom', 'Minoc', 'Moonglow', 'New Haven', 'New Magincia', 'Nujel', 'Ocllo', 'Papua', 'Royal City', 'Serpent', 'Skara Brae', 'Trinsic', 'Umbra', 'Vesper', 'Wind', 'Yew',
             'Zento']
             townmatch = any(town in coordsDICT.get(coords)["BOOK"] for town in townlist)
-            if newdiff < diff4 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and townmatch:
-                diff4 = newdiff
+            if newdiff < diff[4] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and townmatch:
+                diff[4] = newdiff
                 closest[4] = coords
             #Result will be from NOT island book
-            if newdiff < diff3 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
-                diff3 = newdiff
+            if newdiff < diff[3] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
+                diff[3] = newdiff
                 closest[3] = coords
             #Result will be from Shrine book
-            if newdiff < diff2 and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
-                diff2 = newdiff
+            if newdiff < diff[2] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
+                diff[2] = newdiff
                 closest[2] = coords
             #Result will be from all books. Gets stuck on Islands a lot because they are the closest point.
-            if newdiff < diff and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
-                diff = newdiff
+            if newdiff < diff[1] and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
+                diff[1] = newdiff
                 closest[1] = coords
         coordstatus = 1
         closest[0] = closest[1]
@@ -268,6 +269,7 @@ while True:
         coordsCLOSE2 = coordsDICT.get(closest[2])
         coordsCLOSE3 = coordsDICT.get(closest[3])
         coordsCLOSE4 = coordsDICT.get(closest[4])
+        diff[0] = diff[1]
         bookname = coordsCLOSE1['BOOK']
         booktxt = coordsCLOSE1['TEXT']
         
@@ -283,7 +285,7 @@ while True:
                 a = 2736
             for bench in benchlist:
                 Items.SetColor(bench.Serial,a)
-            if n % 10 == 0:
+            if n % 5 == 0:
                 Player.HeadMessage(currentFacet(facet)[1],bookname+": "+booktxt)
             if abs(book.Position.X - Player.Position.X) < 3 and abs(book.Position.Y - Player.Position.Y) < 3:
                 Items.UseItem(book)
@@ -292,17 +294,16 @@ while True:
             for bench in benchlist:
                 Items.SetColor(bench.Serial,0x0000)
             Player.HeadMessage(currentFacet(facet)[1],booktxt)
-            Misc.Pause(2500)
-        Misc.Pause(5000)
+            for i in range(13):
+                Misc.Pause(250)
+                if abs(Player.Position.X - location[0]) <200 and abs(Player.Position.Y - location[1]) <200 and facet == currentFacet(Player.Map)[0]:
+                    break
+            if not Gumps.HasGump(0x1f2):
+                Misc.Pause(1000)
     
     if location != 0 and map != 0 and facet == currentFacet(Player.Map)[0]:
         try: #Using try here to help mitigate errors for now.
-            if facet == "Tokuno Islands": #Trackingarrow is different in tokuno
-                Player.TrackingArrow(location[0]-3,location[1]-3,1,0)
-            elif facet == "Ilshenar":
-                Player.TrackingArrow(location[0]+8,location[1]+7,1,0)
-            else:
-                Player.TrackingArrow(location[0],location[1],1,0)
+            Player.TrackingArrow(location[0],location[1],1,0)
             CUO.GoToMarker(location[0],location[1])
             CUO.FreeView(False)
         except:
@@ -318,26 +319,32 @@ while True:
         status = findChestStatus(tchest)
         
         
-    if map and abs(Player.Position.X - location[0]) <3 and abs(Player.Position.Y - location[1]) <3 and status == 0 and not enemyrange(5):
+    if map and abs(Player.Position.X - location[0]) <3 and abs(Player.Position.Y - location[1]) <3 and status == 0 and not enemyrange(2):
+        position1 = Player.Position.X + Player.Position.Y
         Journal.Clear()
         Items.UseItem(shovel)
         Target.WaitForTarget(1000, False)
         Target.TargetExecute(map.Serial)
         Target.WaitForTarget(1000, False)
         Target.TargetExecute(map.Serial)
-        while not Journal.WaitJournal("You cannot", 1000) and not enemyrange(5):
+        while not enemyrange(1) and Player.Position.X+Player.Position.Y == position1:
             Misc.Pause(1000)
-        if tchest:
-            if tchest.Position.Z == Player.Position.Z:
-                status = 1
+            if findTChest():
+                status == 1
+                break
+            
         
-    while tchest and status == 1 and not enemyrange(5):
+    while tchest and status == 1 and not enemyrange(2):
         Journal.Clear()
-        Items.UseItem(lockpick)
-        Target.WaitForTarget(1000, False)
-        Target.TargetExecute(tchest)
-        if Journal.WaitJournal("The lock quickly yields to your skill.", 1000):
-            status = 2
+        if abs(tchest.Position.Z - Player.Position.Z) < 4:
+            Items.UseItem(lockpick)
+            Target.WaitForTarget(1000, False)
+            Target.TargetExecute(tchest)
+            if Journal.WaitJournal("The lock quickly yields to your skill.", 1000):
+                status = 2
+        if not findTChest():
+            status == 0
+            break
         Misc.Pause(1000)
         
     while tchest and status == 2:
@@ -345,26 +352,35 @@ while True:
         Player.UseSkill("Remove Trap")
         Target.WaitForTarget(1000, False)
         Target.TargetExecute(tchest)
-        if Journal.WaitJournal("You successfully disarm the trap!", 5000):
-            status = 3
+        Misc.Pause(1000)
+        while not enemyrange(1) and status == 2:
+            if Journal.Search('You successfully') == True or Journal.Search('That doesn') == True:
+                status = 3
+                break
+            if Journal.Search('*Your attempt fails') == True or Journal.Search('*You delicately') == False:
+                break
+            Misc.Pause(1000)
         Misc.Pause(1000)
         
     if tchest and status == 3:
         Items.UseItem(tchest)
         Misc.Pause(1000)
-        for bag in findBags(tchest):
+        if findBags(tchest):
+            for bag in findBags(tchest):
+                while not Target.HasTarget():
+                    Gumps.SendAction(0xd06eaf, 12)
+                    Target.WaitForTarget(1000, False)
+                Target.TargetExecute(bag)
+                for item in bag.Contains:
+                    Misc.Pause(1500)
+                Misc.Pause(2000)
+        while not Target.HasTarget():
             Gumps.SendAction(0xd06eaf, 12)
             Target.WaitForTarget(1000, False)
-            Target.TargetExecute(bag)
-            for item in range(len(bag.Contains)):
-                Misc.Pause(1200)
-            Misc.Pause(2000)
-        Gumps.SendAction(0xd06eaf, 12)
-        Target.WaitForTarget(1000, False)
         Target.TargetExecute(tchest)
-        for item in range(len(tchest.Contains)):
-                Misc.Pause(1200)
         #Reset values to recalculate rune
         status = 0
         coordstatus = 0
+
+Gumps.CloseGump(987667)
     
