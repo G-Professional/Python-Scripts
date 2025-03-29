@@ -2,22 +2,20 @@ from treasure_hunter_dict import coordsDICT
 from System.Collections.Generic import List
 from System import Byte
 import math
+
+#special thanks:
+#omgarturo for combat idea
+#smaptastic for general format of functions
    
-coordstatus = 0
-status = 0
-lastserial = 0
-diff = []
-coordsCLOSE1 = 0
-coordsCLOSE2 = 0
-coordsCLOSE3 = 0
-coordsCLOSE4 = 0
-book = 0
 bookname = 0
 booktxt = 0
-closest = [0]*5
-diff = [0]*5
-benchlist = []
-n = 0
+coordstatus = 0
+coordsCLOSE = [0]*6
+closest = [0]*6
+diff = [0]*6
+lastserial = 0
+n = 0 #this is a "timer" for highlighting benches
+N = 1 #this is for changing filters
 
 def findLocation():
     maps = Items.FindAllByID(0x14EC,0x0000,Player.Backpack.Serial,0)
@@ -103,7 +101,7 @@ def findShovel():
 def findChestStatus(tchest):
     if tchest.ContainerOpened:
         return 3
-    if Journal.WaitJournal("That appears to be trapped", 2000):
+    if Journal.Search("That appears to be trapped"):
         return 2
     return 1
 
@@ -119,6 +117,8 @@ def findBench(x,y):
         for bench in reversed(benchList):
             if bench.Position.X == x and bench.Position.Y == y:
                 benchList2.append(bench)
+            else:
+                Items.SetColor(bench.Serial,0x0000)
         return benchList2
     return None
 
@@ -128,18 +128,11 @@ def filterstate(toggle):
     global closest
     global bookname
     global booktxt
-    global coordsCLOSE1
-    global coordsCLOSE2
-    global coordsCLOSE3
-    global coordsCLOSE4
+    global coordsCLOSE
     global diff
     global N
-    filterName = ["All Runes","No Islands","Shrines","Towns"]
+    filterName = ["All Runes","2nd Closest","No Islands","Shrines","Towns"]
     #couldnt figure out how to do with without globals, bad practice
-    if benchlist:
-        for bench in benchlist:
-            Items.SetColor(bench.Serial,0x0000)
-    
     if toggle == 1:
         N += 1
     if toggle == -1:
@@ -151,8 +144,11 @@ def filterstate(toggle):
     Player.HeadMessage(980,filterName[N-1])
     closest[0] = closest[N]
     diff[0] = diff[N]
-    bookname = globals()["coordsCLOSE"+str(N)]['BOOK']
-    booktxt = globals()["coordsCLOSE"+str(N)]['TEXT']
+    if coordsCLOSE[N] != False:
+        bookname = coordsCLOSE[N]['BOOK']
+        booktxt = coordsCLOSE[N]['TEXT']
+    else:
+        Player.HeadMessage(236,"No Runes found for this filter.")
         
 def enemyrange(range):
     enemiesInRange = Mobiles.Filter()
@@ -202,7 +198,6 @@ def sendgump(facet,location,emptymap,closest,diff):
     buttoncheck() 
    
 def buttoncheck():
-    N = 0
     Gumps.WaitForGump(987667, 1000) ###### TRY TO KEEP THIS AS THE ONLY PAUSE
                                    ###### SO THAT GUMP IS MORE RESPONSIVE
 #    Gumps.CloseGump(987667)
@@ -213,14 +208,14 @@ def buttoncheck():
         else:
             Player.HeadMessage(37,"No more maps!")
     if gd.buttonid == 2:
-        N = 1
-        filterstate(N)
+        filterstate(1)
     if gd.buttonid == 3:
-        N = -1
-        filterstate(N)
+        filterstate(-1)
 ##################################################
 
 while Player.Connected:
+    
+    status = 0
     tchest = findTChest()
     lockpick = findLockPick()
     shovel = findShovel()
@@ -228,64 +223,24 @@ while Player.Connected:
     emptymap = findEmptyMap()
     sendgump(facet,location,emptymap,closest,diff)
     n += 1 #this is a timer to help time certain events
-    if n > 100:
+    if n > 10:
         n = 1
-    if location == 0 and emptymap and n%50 == 0 and coordstatus == 0:
+
+    
+    if location == 0 and emptymap and n == 10 and coordstatus == 0:
         Player.HeadMessage(0x55,"Open a map!")
-    
-    
-    if coordstatus == 0 and map: #Run this only once per map (the list is BIG)
-        diff[1] = 99999
-        diff[2] = 99999
-        diff[3] = 99999
-        diff[4] = 99999
-        for coords in coordsDICT.keys():
-            if coords != ',':
-                loclist = coords.split(",")
-                newdiff = abs(int(loclist[0])-location[0]) + abs(int(loclist[1])-location[1])
-            #Result will be from Towns
-            townlist = ['Britain', 'Buccaneer', 'Cove', 'Delucia', 'Heartwood', 'Jhelom', 'Minoc', 'Moonglow', 'New Haven', 'New Magincia', 'Nujel', 'Ocllo', 'Papua', 'Royal City', 'Serpent', 'Skara Brae', 'Trinsic', 'Umbra', 'Vesper', 'Wind', 'Yew',
-            'Zento']
-            townmatch = any(town in coordsDICT.get(coords)["BOOK"] for town in townlist)
-            if newdiff < diff[4] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and townmatch:
-                diff[4] = newdiff
-                closest[4] = coords
-            #Result will be from NOT island book
-            if newdiff < diff[3] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
-                diff[3] = newdiff
-                closest[3] = coords
-            #Result will be from Shrine book
-            if newdiff < diff[2] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
-                diff[2] = newdiff
-                closest[2] = coords
-            #Result will be from all books. Gets stuck on Islands a lot because they are the closest point.
-            if newdiff < diff[1] and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
-                diff[1] = newdiff
-                closest[1] = coords
-        coordstatus = 1
-        closest[0] = closest[1]
-        N = 1
-        coordsCLOSE1 = coordsDICT.get(closest[1])
-        coordsCLOSE2 = coordsDICT.get(closest[2])
-        coordsCLOSE3 = coordsDICT.get(closest[3])
-        coordsCLOSE4 = coordsDICT.get(closest[4])
-        diff[0] = diff[1]
-        bookname = coordsCLOSE1['BOOK']
-        booktxt = coordsCLOSE1['TEXT']
-        
         
     
     book = findBook(bookname)
     if coordstatus == 1 and book:
-        benchlist = findBench(book.Position.X,book.Position.Y)
         if findBook(bookname) and not Gumps.HasGump(0x1f2):
-            if n % 2 ==0:
+            a = 2736
+            if n & 1:
                 a = 2965
-            else:
-                a = 2736
+            benchlist = findBench(book.Position.X,book.Position.Y)
             for bench in benchlist:
                 Items.SetColor(bench.Serial,a)
-            if n % 5 == 0:
+            if n == 5:
                 Player.HeadMessage(currentFacet(facet)[1],bookname+": "+booktxt)
             if abs(book.Position.X - Player.Position.X) < 3 and abs(book.Position.Y - Player.Position.Y) < 3:
                 Items.UseItem(book)
@@ -300,7 +255,51 @@ while Player.Connected:
                     break
             if not Gumps.HasGump(0x1f2):
                 Misc.Pause(1000)
-    
+
+    if coordstatus == 0 and map: #Run this only once per map (the list is BIG)
+        diff[1] = 99999
+        diff[2] = 99999
+        diff[3] = 99999
+        diff[4] = 99999
+        diff[5] = 99999
+        for coords in coordsDICT.keys():
+            if coords != ',':
+                loclist = coords.split(",")
+                newdiff = abs(int(loclist[0])-location[0]) + abs(int(loclist[1])-location[1])
+            #Result will be from Towns
+            townlist = ['Britain', 'Buccaneer', 'Cove', 'Delucia', 'Heartwood', 'Jhelom', 'Minoc', 'Moonglow', 'New Haven', 'New Magincia', 'Nujel', 'Ocllo', 'Papua', 'Royal City', 'Serpent', 'Skara Brae', 'Trinsic', 'Umbra', 'Vesper', 'Wind', 'Yew',
+            'Zento']
+            townmatch = any(town in coordsDICT.get(coords)["BOOK"] for town in townlist)
+            if newdiff < diff[5] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and townmatch:
+                diff[5] = newdiff
+                closest[5] = coords
+            #Result will be from NOT island book
+            if newdiff < diff[4] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
+                diff[4] = newdiff
+                closest[4] = coords
+            #Result will be from Shrine book
+            if newdiff < diff[3] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
+                diff[3] = newdiff
+                closest[3] = coords
+            #Result will be from all books. Next Closest Rune.
+            if newdiff < diff[2] and newdiff > diff[1] and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
+                diff[2] = newdiff
+                closest[2] = coords
+            #Result will be from all books. Gets stuck on Islands a lot because they are the closest point.
+            if newdiff < diff[1] and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
+                diff[1] = newdiff
+                closest[1] = coords
+        coordstatus = 1
+        closest[0] = closest[1]
+        coordsCLOSE[1] = coordsDICT.get(closest[1])
+        coordsCLOSE[2] = coordsDICT.get(closest[2])
+        coordsCLOSE[3] = coordsDICT.get(closest[3])
+        coordsCLOSE[4] = coordsDICT.get(closest[4])
+        coordsCLOSE[5] = coordsDICT.get(closest[5])
+        diff[0] = diff[1]
+        bookname = coordsCLOSE[1]['BOOK']
+        booktxt = coordsCLOSE[1]['TEXT']
+        
     if location != 0 and map != 0 and facet == currentFacet(Player.Map)[0]:
         try: #Using try here to help mitigate errors for now.
             Player.TrackingArrow(location[0],location[1],1,0)
@@ -311,8 +310,8 @@ while Player.Connected:
         
     else:
         Player.TrackingArrow(0,0,0,0)
-        
-    if tchest and tchest.Serial != lastserial:
+    
+    if tchest and tchest.Serial != lastserial:  #this will detect chest state if the script was restarted
         Items.UseItem(tchest)
         lastserial = tchest.Serial
         Misc.Pause(1000)
@@ -329,22 +328,27 @@ while Player.Connected:
         Target.TargetExecute(map.Serial)
         while not enemyrange(1) and Player.Position.X+Player.Position.Y == position1:
             Misc.Pause(1000)
-            if findTChest():
-                status == 1
-                break
-            
-        
-    while tchest and status == 1 and not enemyrange(2):
-        Journal.Clear()
-        if abs(tchest.Position.Z - Player.Position.Z) < 4:
+            tchest = findTChest()
+            if tchest:
+                if abs(tchest.Position.Z - Player.Position.Z) < 4:
+                    status = 1
+                    Misc.Pause(1000)
+                    print("Chest Dug up, status = 1")
+                    break
+    Journal.Clear()    
+    while tchest and status == 1:
+        if enemyrange(2):
+            Misc.Pause(1000)
+            continue
+        if findTChest():
+            print("starting lockpick")
             Items.UseItem(lockpick)
             Target.WaitForTarget(1000, False)
             Target.TargetExecute(tchest)
-            if Journal.WaitJournal("The lock quickly yields to your skill.", 1000):
+            Misc.Pause(1000)
+            if Journal.Search('The lock quickly yields to your skill.') == True or Journal.Search('That appears to be trapped') == True:
                 status = 2
-        if not findTChest():
-            status == 0
-            break
+                print("lock picked, status = "+str(status))
         Misc.Pause(1000)
         
     while tchest and status == 2:
@@ -358,6 +362,9 @@ while Player.Connected:
                 status = 3
                 break
             if Journal.Search('*Your attempt fails') == True or Journal.Search('*You delicately') == False:
+                break
+            if Journal.Search('That is locked.') == True:
+                status = 1
                 break
             Misc.Pause(1000)
         Misc.Pause(1000)
