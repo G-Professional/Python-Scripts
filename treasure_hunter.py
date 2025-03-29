@@ -2,16 +2,21 @@ from treasure_hunter_dict import coordsDICT
 from System.Collections.Generic import List
 from System import Byte
 import math
+
+#special thanks:
+#omgarturo for combat idea
+#smaptastic for general format of functions
    
 bookname = 0
 booktxt = 0
 coordstatus = 0
-coordsCLOSE = [0]*5
-closest = [0]*5
-diff = [0]*5
+coordsCLOSE = [0]*6
+closest = [0]*6
+diff = [0]*6
 lastserial = 0
 n = 0 #this is a "timer" for highlighting benches
 N = 1 #this is for changing filters
+
 def findLocation():
     maps = Items.FindAllByID(0x14EC,0x0000,Player.Backpack.Serial,0)
     for map in maps:
@@ -126,7 +131,7 @@ def filterstate(toggle):
     global coordsCLOSE
     global diff
     global N
-    filterName = ["All Runes","No Islands","Shrines","Towns"]
+    filterName = ["All Runes","2nd Closest","No Islands","Shrines","Towns"]
     #couldnt figure out how to do with without globals, bad practice
     if toggle == 1:
         N += 1
@@ -139,11 +144,11 @@ def filterstate(toggle):
     Player.HeadMessage(980,filterName[N-1])
     closest[0] = closest[N]
     diff[0] = diff[N]
-    if coordsCLOSE[N] != None:
+    if coordsCLOSE[N] != False:
         bookname = coordsCLOSE[N]['BOOK']
         booktxt = coordsCLOSE[N]['TEXT']
     else:
-        Player.HeadMessage(236,"None found for this filter.")
+        Player.HeadMessage(236,"No Runes found for this filter.")
         
 def enemyrange(range):
     enemiesInRange = Mobiles.Filter()
@@ -256,6 +261,7 @@ while Player.Connected:
         diff[2] = 99999
         diff[3] = 99999
         diff[4] = 99999
+        diff[5] = 99999
         for coords in coordsDICT.keys():
             if coords != ',':
                 loclist = coords.split(",")
@@ -264,15 +270,19 @@ while Player.Connected:
             townlist = ['Britain', 'Buccaneer', 'Cove', 'Delucia', 'Heartwood', 'Jhelom', 'Minoc', 'Moonglow', 'New Haven', 'New Magincia', 'Nujel', 'Ocllo', 'Papua', 'Royal City', 'Serpent', 'Skara Brae', 'Trinsic', 'Umbra', 'Vesper', 'Wind', 'Yew',
             'Zento']
             townmatch = any(town in coordsDICT.get(coords)["BOOK"] for town in townlist)
-            if newdiff < diff[4] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and townmatch:
+            if newdiff < diff[5] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and townmatch:
+                diff[5] = newdiff
+                closest[5] = coords
+            #Result will be from NOT island book
+            if newdiff < diff[4] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
                 diff[4] = newdiff
                 closest[4] = coords
-            #Result will be from NOT island book
-            if newdiff < diff[3] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and 'Shrines' in coordsDICT.get(coords)["BOOK"]:
+            #Result will be from Shrine book
+            if newdiff < diff[3] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
                 diff[3] = newdiff
                 closest[3] = coords
-            #Result will be from Shrine book
-            if newdiff < diff[2] and coordsDICT.get(coords)["FACET"] == facet[:3].lower() and not 'Island' in coordsDICT.get(coords)["BOOK"]:
+            #Result will be from all books. Next Closest Rune.
+            if newdiff < diff[2] and newdiff > diff[1] and coordsDICT.get(coords)["FACET"] == facet[:3].lower():
                 diff[2] = newdiff
                 closest[2] = coords
             #Result will be from all books. Gets stuck on Islands a lot because they are the closest point.
@@ -285,6 +295,7 @@ while Player.Connected:
         coordsCLOSE[2] = coordsDICT.get(closest[2])
         coordsCLOSE[3] = coordsDICT.get(closest[3])
         coordsCLOSE[4] = coordsDICT.get(closest[4])
+        coordsCLOSE[5] = coordsDICT.get(closest[5])
         diff[0] = diff[1]
         bookname = coordsCLOSE[1]['BOOK']
         booktxt = coordsCLOSE[1]['TEXT']
