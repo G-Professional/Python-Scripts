@@ -144,7 +144,8 @@ def filterstate(toggle):
     Player.HeadMessage(980,filterName[N-1])
     closest[0] = closest[N]
     diff[0] = diff[N]
-    if coordsCLOSE[N] != False:
+    print(coordsCLOSE[N])
+    if coordsCLOSE[N] != (False or None):
         bookname = coordsCLOSE[N]['BOOK']
         booktxt = coordsCLOSE[N]['TEXT']
     else:
