@@ -5,7 +5,8 @@ import math
 
 #special thanks:
 #omgarturo for combat idea
-#smaptastic for general format of functions
+#Smaptastic for general format of functions
+#Avernal for tracking arrow fix
    
 bookname = 0
 booktxt = 0
@@ -303,9 +304,14 @@ while Player.Connected:
         
     if location != 0 and map != 0 and facet == currentFacet(Player.Map)[0]:
         try: #Using try here to help mitigate errors for now.
-            Player.TrackingArrow(location[0],location[1],1,0)
-            CUO.GoToMarker(location[0],location[1])
+            tileheight = Statics.GetLandZ(location[0], location[1], Player.Map)
+            zoffset = round(tileheight / 10)
+            X = location[0] - zoffset
+            Y = location[1] - zoffset
+            Misc.Pause(1000)
+            CUO.GoToMarker(location[0], location[1])
             CUO.FreeView(False)
+            Player.TrackingArrow(X, Y, True)
         except:
             print("Waypoint error")
         
@@ -375,17 +381,25 @@ while Player.Connected:
         Misc.Pause(1000)
         if findBags(tchest):
             for bag in findBags(tchest):
-                while not Target.HasTarget():
-                    Gumps.SendAction(0xd06eaf, 12)
-                    Target.WaitForTarget(1000, False)
+                for a in range(0,3):
+                    if not Target.HasTarget():
+                        Gumps.SendAction(0xd06eaf, 12)
+                        Target.WaitForTarget(1000, False)
+                        continue
+                    if Target.HasTarget():
+                        break
                 Target.TargetExecute(bag)
                 for item in bag.Contains:
                     Misc.Pause(1500)
                 Misc.Pause(2000)
-        while not Target.HasTarget():
-            Gumps.SendAction(0xd06eaf, 12)
-            Target.WaitForTarget(1000, False)
-        Target.TargetExecute(tchest)
+        for a in range(0,3):
+            if not Target.HasTarget():
+                Gumps.SendAction(0xd06eaf, 12)
+                Target.WaitForTarget(1000, False)
+                continue
+            if Target.HasTarget():
+                        break
+            Target.TargetExecute(tchest)
         #Reset values to recalculate rune
         status = 0
         coordstatus = 0
