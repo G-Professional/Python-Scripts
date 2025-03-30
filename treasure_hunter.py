@@ -5,7 +5,8 @@ import math
 
 #special thanks:
 #omgarturo for combat idea
-#smaptastic for general format of functions
+#Smaptastic for general format of functions
+#Avernal for tracking arrow fix
    
 bookname = 0
 booktxt = 0
@@ -311,10 +312,6 @@ while Player.Connected:
             CUO.GoToMarker(location[0], location[1])
             CUO.FreeView(False)
             Player.TrackingArrow(X, Y, True)
-            #old code
-            #Player.TrackingArrow(location[0],location[1],1,0)
-#            CUO.GoToMarker(location[0],location[1])
-#            CUO.FreeView(False)
         except:
             print("Waypoint error")
         
