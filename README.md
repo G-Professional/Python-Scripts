@@ -20,17 +20,17 @@ The other file is a dictionary file with all the points (split up because the di
    -  Uses Lootmaster to loot the chest.
 ## Planned Features
    - Would like to use MeesaJarJar's fake item spawner to mark the specific spot.
-   - Add more point calculations based on certain filters.
+   - ~~Add more point calculations based on certain filters.~~
    - Some way to highlight rune in the book (idk if this is possible)
    - Some way to differentiate between islands and land mass. (idk if this is possible)
 ## Known Issues
    - There is a very west island in Tokuno that doesnt have a rune and it makes me sad.
-   - Script sometimes does not reset the benches.
+   - ~~Script sometimes does not reset the benches.~~
    - ~~The auto-dig,pick,disarm seems like it could be better and stop spamming.~~
-   - Sometimes, when looting if you walk away the script error's out.
+   - ~~Sometimes, when looting if you walk away the script error's out.~~
    - ~~The GUI is depressing.~~ Not anymore its not!
    - ~~Dictionary is included in the python script... Probably bad.~~
-   - The tracking arrow is off because it doesn't account for Z-height.
+   - ~~The tracking arrow is off because it doesn't account for Z-height.~~
 
 
 I welcome any changes/fixes/improvements from anyone else!
