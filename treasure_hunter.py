@@ -133,8 +133,9 @@ def filterstate(toggle):
     if N == len(filterName)+1:
         N = 1
     elif N == 0:
-        N = len(filterName)+1
-    Player.HeadMessage(980,filterName[N-1])
+        N = len(filterName)
+    Player.HeadMessage(32,"Filter: ")
+    Player.HeadMessage(32,filterName[N-1])
         
 def enemyrange(range):
     enemiesInRange = Mobiles.Filter()
