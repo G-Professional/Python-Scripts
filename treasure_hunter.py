@@ -122,35 +122,19 @@ def findBench(x,y):
                 Items.SetColor(bench.Serial,0x0000)
         return benchList2
     return None
-
-
     
 def filterstate(toggle):
-    global closest
-    global bookname
-    global booktxt
-    global coordsCLOSE
-    global diff
     global N
     filterName = ["All Runes","2nd Closest","No Islands","Shrines","Towns"]
-    #couldnt figure out how to do with without globals, bad practice
     if toggle == 1:
-        N += 1
-    if toggle == -1:
-        N -= 1
-    if N == len(closest):
+        N = N + 1
+    elif toggle == -1:
+        N = N - 1
+    if N == len(filterName)+1:
         N = 1
-    if N == 0:
-        N = 4
+    elif N == 0:
+        N = len(filterName)+1
     Player.HeadMessage(980,filterName[N-1])
-    closest[0] = closest[N]
-    diff[0] = diff[N]
-    print(coordsCLOSE[N])
-    if coordsCLOSE[N] != (False or None):
-        bookname = coordsCLOSE[N]['BOOK']
-        booktxt = coordsCLOSE[N]['TEXT']
-    else:
-        Player.HeadMessage(236,"No Runes found for this filter.")
         
 def enemyrange(range):
     enemiesInRange = Mobiles.Filter()
@@ -197,7 +181,8 @@ def sendgump(facet,location,emptymap,closest,diff):
     Gumps.AddTooltip(gd, r"Previous Filter")
     #Send Gump#
     Gumps.SendGump(987667, Player.Serial, setX, setY, gd.gumpDefinition, gd.gumpStrings)
-    buttoncheck() 
+    buttoncheck()
+    
    
 def buttoncheck():
     Gumps.WaitForGump(987667, 1000) ###### TRY TO KEEP THIS AS THE ONLY PAUSE
@@ -210,9 +195,11 @@ def buttoncheck():
         else:
             Player.HeadMessage(37,"No more maps!")
     if gd.buttonid == 2:
-        filterstate(1)
+        N = filterstate(1)
+        return N
     if gd.buttonid == 3:
-        filterstate(-1)
+        N = filterstate(-1)
+        return N
 ##################################################
 
 while Player.Connected:
@@ -231,8 +218,20 @@ while Player.Connected:
     
     if location == 0 and emptymap and n == 10 and coordstatus == 0:
         Player.HeadMessage(0x55,"Open a map!")
+
+    if coordstatus == 1 and N != None and closest[N] != closest[0]:
+        closest[0] = closest[N]
+        diff[0] = diff[N]
+        if coordsCLOSE[N] != (False or None):
+            bookname = coordsCLOSE[N]['BOOK']
+            booktxt = coordsCLOSE[N]['TEXT']
+        else:
+            Player.HeadMessage(236,"No Runes found for this filter.")
+            for bench in benchlist:
+                Items.SetColor(bench.Serial,0x0000)
+            bookname = None
+            booktext = None
         
-    
     book = findBook(bookname)
     if coordstatus == 1 and book:
         if findBook(bookname) and not Gumps.HasGump(0x1f2):
@@ -242,7 +241,7 @@ while Player.Connected:
             benchlist = findBench(book.Position.X,book.Position.Y)
             for bench in benchlist:
                 Items.SetColor(bench.Serial,a)
-            if n == 5:
+            if n%5 == 0:
                 Player.HeadMessage(currentFacet(facet)[1],bookname+": "+booktxt)
             if abs(book.Position.X - Player.Position.X) < 3 and abs(book.Position.Y - Player.Position.Y) < 3:
                 Items.UseItem(book)
@@ -399,10 +398,9 @@ while Player.Connected:
                 continue
             if Target.HasTarget():
                         break
-            Target.TargetExecute(tchest)
+        Target.TargetExecute(tchest)
         #Reset values to recalculate rune
         status = 0
         coordstatus = 0
 
 Gumps.CloseGump(987667)
-    
