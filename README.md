@@ -22,6 +22,9 @@ The other file is a dictionary file with all the points (split up because the di
    - Would like to use MeesaJarJar's fake item spawner to mark the specific spot.
    - ~~Add more point calculations based on certain filters.~~
    - Some way to highlight rune in the book (idk if this is possible)
+     - could use python text recognition or screen reader - complex
+     - intercepting packets to edit the gui - no idea how to actually do this
+     - have the script just select the rune - easiest way but i feel like player should be selecting it idk
    - Some way to differentiate between islands and land mass. (idk if this is possible)
 ## Known Issues
    - There is a very west island in Tokuno that doesnt have a rune and it makes me sad.
