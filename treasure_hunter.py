@@ -55,13 +55,13 @@ def findTChest():
 def currentFacet(a):
     facet = a
     if facet in (5,"Valley of Eodon"):
-        return "Valley of Eodon",1276
+        return "Valley of Eodon",340
     if facet in (4, "Tokuno Islands"):
         return "Tokuno Islands",1267
     if facet in (3, "Malas"):
-        return "Malas",2949
+        return "Malas",1902
     if facet in (2,"Ilshenar"):
-        return "Ilshenar",2055
+        return "Ilshenar",1108
     if facet in (1, "Trammel"):
         return "Trammel",10
     if facet in (0,"Felucca"):
