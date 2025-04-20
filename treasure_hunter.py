@@ -253,7 +253,7 @@ while Player.Connected:
             Player.HeadMessage(currentFacet(facet)[1],booktxt)
             for i in range(13):
                 Misc.Pause(250)
-                if abs(Player.Position.X - location[0]) <200 and abs(Player.Position.Y - location[1]) <200 and facet == currentFacet(Player.Map)[0]:
+                if abs(Player.Position.X - location[0]) <200 and abs(Player.Position.Y - location[1]) <200 and currentFacet(facet)[1] == currentFacet(Player.Map)[1]:
                     break
             if not Gumps.HasGump(0x1f2):
                 Misc.Pause(1000)
