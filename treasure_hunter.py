@@ -302,7 +302,7 @@ while Player.Connected:
         bookname = coordsCLOSE[1]['BOOK']
         booktxt = coordsCLOSE[1]['TEXT']
         
-    if location != 0 and map != 0 and facet == currentFacet(Player.Map)[0]:
+    if location != 0 and map != 0 and currentFacet(facet)[1] == currentFacet(Player.Map)[1]:
         try: #Using try here to help mitigate errors for now.
             tileheight = Statics.GetLandZ(location[0], location[1], Player.Map)
             zoffset = round(tileheight / 10)
