@@ -54,7 +54,7 @@ def findTChest():
 
 def currentFacet(a):
     facet = a
-    if facet in (5,"Valley of Eodon") or ("Ter Mur"):
+    if facet in (5,"Valley of Eodon","Ter Mur"):
         return "Valley of Eodon",1276
     if facet in (4, "Tokuno Islands"):
         return "Tokuno Islands",1267
