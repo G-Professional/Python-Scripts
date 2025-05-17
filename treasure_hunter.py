@@ -31,6 +31,8 @@ def findLocation():
             a = int(a[0]),int(a[1])
             b = Items.GetPropStringByIndex(map,4)
             b = b.replace("for somewhere in ","")
+            if b == "Eodon":
+                b = "Ter Mur"
             return a,b,map
     return 0,0,0
     
@@ -54,14 +56,14 @@ def findTChest():
 
 def currentFacet(a):
     facet = a
-    if facet in (5,"Valley of Eodon","Ter Mur"):
-        return "Valley of Eodon",1276
+    if facet in (5,"Ter Mur"):
+        return "Ter Mur", 1276
     if facet in (4, "Tokuno Islands"):
         return "Tokuno Islands",1267
     if facet in (3, "Malas"):
         return "Malas",2949
     if facet in (2,"Ilshenar"):
-        return "Ilshenar",2055
+        return "Ilshenar",353
     if facet in (1, "Trammel"):
         return "Trammel",10
     if facet in (0,"Felucca"):
@@ -301,7 +303,7 @@ while Player.Connected:
         diff[0] = diff[1]
         bookname = coordsCLOSE[1]['BOOK']
         booktxt = coordsCLOSE[1]['TEXT']
-        
+
     if location != 0 and map != 0 and currentFacet(facet)[1] == currentFacet(Player.Map)[1]:
         try: #Using try here to help mitigate errors for now.
             tileheight = Statics.GetLandZ(location[0], location[1], Player.Map)
@@ -405,4 +407,3 @@ while Player.Connected:
         coordstatus = 0
 
 Gumps.CloseGump(987667)
-    
